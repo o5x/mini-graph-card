@@ -34,6 +34,7 @@ class MiniGraphCard extends LitElement {
     this.config = {};
     this.bound = [0, 0];
     this.boundSecondary = [0, 0];
+    this.boundTertiary = [0, 0];
     this.length = [];
     this.entity = [];
     this.line = [];
@@ -93,6 +94,7 @@ class MiniGraphCard extends LitElement {
       length: Number,
       bound: [],
       boundSecondary: [],
+      boundTertiary: [],
       abs: [],
       tooltip: {},
       updateQueue: [],
@@ -610,6 +612,10 @@ class MiniGraphCard extends LitElement {
     return this.visibleEntities.filter(entity => entity.y_axis === 'secondary');
   }
 
+  get tertiaryYaxisEntities() {
+    return this.visibleEntities.filter(entity => entity.y_axis === 'tertiary');
+  }
+
   get visibleLegends() {
     return this.visibleEntities.filter(entity => entity.show_legend !== false);
   }
@@ -620,6 +626,10 @@ class MiniGraphCard extends LitElement {
 
   get secondaryYaxisSeries() {
     return this.secondaryYaxisEntities.map(entity => this.Graph[entity.index]);
+  }
+
+  get tertiaryYaxisSeries() {
+    return this.tertiaryYaxisEntities.map(entity => this.Graph[entity.index]);
   }
 
   intColor(inState, i) {
@@ -745,7 +755,7 @@ class MiniGraphCard extends LitElement {
       let graphPos = 0;
       this.entity.forEach((entity, i) => {
         if (!entity || this.Graph[i].coords.length === 0) return;
-        const bound = config.entities[i].y_axis === 'secondary' ? this.boundSecondary : this.bound;
+        const bound = config.entities[i].y_axis === 'secondary' ? this.boundSecondary : (config.entities[i].y_axis === 'tertiary' ? this.boundTertiary : this.bound);
         [this.Graph[i].min, this.Graph[i].max] = [bound[0], bound[1]];
         if (config.show.graph === 'bar') {
           const numVisible = this.visibleEntities.length;
@@ -825,6 +835,14 @@ class MiniGraphCard extends LitElement {
       config.upper_bound_secondary,
       this.boundSecondary,
       config.min_bound_range_secondary,
+    );
+
+    this.boundTertiary = this.getBoundaries(
+      this.tertiaryYaxisSeries,
+      config.lower_bound_tertiary,
+      config.upper_bound_tertiary,
+      this.boundTertiary,
+      config.min_bound_range_tertiary,
     );
   }
 
